@@ -45,6 +45,21 @@ export interface CompatibilityResponse {
   };
 }
 
+export interface GameSearchItem {
+  id: string;
+  igdbId: number;
+  name: string;
+  coverUrl: string | null;
+  releaseYear: number | null;
+  genres: string[];
+}
+
+export interface GameSearchResponse {
+  query: string;
+  total: number;
+  items: GameSearchItem[];
+}
+
 export interface ApiErrorResponse {
   error: {
     code: string;
