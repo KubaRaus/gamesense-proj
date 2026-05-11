@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.turbo
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+coverage
+client/.vite
+server/prisma/migrations

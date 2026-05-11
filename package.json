@@ -1,0 +1,25 @@
+{
+  "name": "gamesense-proj",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GameSense monorepo (PERN + TypeScript)",
+  "workspaces": [
+    "client",
+    "server",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server",
+    "build": "npm run build -w packages/types && npm run build -w server && npm run build -w client",
+    "typecheck": "npm run typecheck -w packages/types && npm run typecheck -w server && npm run typecheck -w client",
+    "lint": "npm run lint -w server && npm run lint -w client"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
