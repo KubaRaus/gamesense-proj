@@ -13,7 +13,7 @@
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "@gamesense/types": "workspace:*",
+    "@gamesense/types": "file:../packages/types",
     "@prisma/client": "^6.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

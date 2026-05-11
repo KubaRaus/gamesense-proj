@@ -8,5 +8,6 @@ build
 .env.*
 !.env.example
 coverage
+*.tsbuildinfo
 client/.vite
 server/prisma/migrations

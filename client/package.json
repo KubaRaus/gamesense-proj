@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "echo \"Lint not configured yet\""
   },
   "dependencies": {
-    "@gamesense/types": "workspace:*",
+    "@gamesense/types": "file:../packages/types",
     "@tanstack/react-query": "^5.80.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
