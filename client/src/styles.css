@@ -32,6 +32,12 @@ body {
   color: #cbd5e1;
 }
 
+.hero .meta {
+  margin-top: 0.5rem;
+  color: #93c5fd;
+  font-size: 0.85rem;
+}
+
 .card {
   border: 1px solid #334155;
   background: #111827;
@@ -71,6 +77,11 @@ button {
   cursor: pointer;
 }
 
+.secondary {
+  background: transparent;
+  border-color: #64748b;
+}
+
 button[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
@@ -90,4 +101,11 @@ pre {
   margin: 0;
   color: #93c5fd;
   font-size: 0.9rem;
+}
+
+.token-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
 }

@@ -1,23 +1,44 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
+  API_BASE_URL,
   authenticateWithSteam,
   getCompatibility,
   getUserProfile,
   searchGames
 } from "../shared/api/gamesense-api";
 
+const TOKEN_STORAGE_KEY = "gamesense.prototype.token";
+
 function stringifyResult(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
 
+function maskToken(token: string) {
+  if (token.length <= 16) {
+    return token;
+  }
+
+  return `${token.slice(0, 8)}...${token.slice(-6)}`;
+}
+
 export function App() {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) ?? "");
   const [openIdResponse, setOpenIdResponse] = useState("ok");
   const [gamesQuery, setGamesQuery] = useState("ha");
   const [profileUserId, setProfileUserId] = useState("usr_1");
   const [compatibilityA, setCompatibilityA] = useState("usr_1");
   const [compatibilityB, setCompatibilityB] = useState("usr_2");
+  const hasToken = useMemo(() => token.trim().length > 0, [token]);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      return;
+    }
+
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }, [token]);
 
   const authMutation = useMutation({
     mutationFn: authenticateWithSteam,
@@ -42,6 +63,7 @@ export function App() {
       <header className="hero">
         <h1>GameSense Prototype</h1>
         <p>Interactive API test panel for auth, search, profile, and compatibility.</p>
+        <p className="meta">API URL: {API_BASE_URL}</p>
       </header>
 
       <section className="card">
@@ -55,7 +77,12 @@ export function App() {
         </button>
         {authMutation.error && <pre>{String(authMutation.error.message)}</pre>}
         {authMutation.data && <pre>{stringifyResult(authMutation.data)}</pre>}
-        <p className="token">Token: {token || "(missing - run auth first)"}</p>
+        <div className="token-row">
+          <p className="token">Token: {token ? maskToken(token) : "(missing - run auth first)"}</p>
+          <button className="secondary" onClick={() => setToken("")} disabled={!hasToken}>
+            Clear Token
+          </button>
+        </div>
       </section>
 
       <section className="card">
@@ -79,7 +106,7 @@ export function App() {
         </label>
         <button
           onClick={() => profileMutation.mutate(profileUserId)}
-          disabled={profileMutation.isPending || !token}
+          disabled={profileMutation.isPending || !hasToken}
         >
           {profileMutation.isPending ? "Loading..." : "Fetch Profile"}
         </button>
@@ -99,7 +126,7 @@ export function App() {
         </label>
         <button
           onClick={() => compatibilityMutation.mutate({ userA: compatibilityA, userB: compatibilityB })}
-          disabled={compatibilityMutation.isPending || !token}
+          disabled={compatibilityMutation.isPending || !hasToken}
         >
           {compatibilityMutation.isPending ? "Calculating..." : "Run Compatibility"}
         </button>

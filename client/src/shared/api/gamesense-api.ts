@@ -1,11 +1,12 @@
 import type {
+  ApiErrorResponse,
   AuthSteamCallbackResponse,
   CompatibilityResponse,
   GameSearchResponse,
   UserProfileResponse
 } from "@gamesense/types";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
 type RequestMethod = "GET" | "POST";
 
@@ -26,8 +27,13 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(errorBody || `Request failed with status ${response.status}`);
+    const rawBody = await response.text();
+    try {
+      const parsed = JSON.parse(rawBody) as ApiErrorResponse;
+      throw new Error(`${parsed.error.code}: ${parsed.error.message}`);
+    } catch {
+      throw new Error(rawBody || `Request failed with status ${response.status}`);
+    }
   }
 
   return (await response.json()) as T;
