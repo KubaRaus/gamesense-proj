@@ -12,5 +12,9 @@ export async function userProfileController(req: Request, res: Response) {
   }
 
   const response = await usersService.getProfile(parsed.data);
+  if (!response) {
+    return sendApiError(res, 404, "USER_NOT_FOUND", "User was not found.");
+  }
+
   return res.status(200).json(response);
 }

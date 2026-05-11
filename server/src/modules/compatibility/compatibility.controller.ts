@@ -16,5 +16,9 @@ export async function compatibilityController(req: Request, res: Response) {
   }
 
   const response = await compatibilityService.getCompatibility(parsed.data);
+  if (!response) {
+    return sendApiError(res, 404, "USER_NOT_FOUND", "One or both users were not found.");
+  }
+
   return res.status(200).json(response);
 }

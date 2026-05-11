@@ -5,6 +5,11 @@ import { createApp } from "../src/app";
 
 const app = createApp();
 
+async function createAccessToken() {
+  const response = await request(app).post("/api/auth/steam/callback").send({ openIdResponse: "ok" });
+  return response.body.accessToken as string;
+}
+
 test("GET /health returns service status", async () => {
   const response = await request(app).get("/health");
   assert.equal(response.status, 200);
@@ -39,12 +44,30 @@ test("GET /api/users/:userId/profile rejects invalid token", async () => {
   assert.equal(response.body.error.code, "UNAUTHORIZED");
 });
 
-test("GET /api/compatibility/:userA/:userB returns overlap payload", async () => {
-  const authResponse = await request(app)
-    .post("/api/auth/steam/callback")
-    .send({ openIdResponse: "ok" });
+test("GET /api/users/:userId/profile returns aggregate profile", async () => {
+  const accessToken = await createAccessToken();
+  const response = await request(app)
+    .get("/api/users/usr_1/profile")
+    .set("Authorization", `Bearer ${accessToken}`);
 
-  const accessToken = authResponse.body.accessToken as string;
+  assert.equal(response.status, 200);
+  assert.equal(response.body.username, "Jakub");
+  assert.equal(response.body.gameCount, 2);
+  assert.equal(response.body.totalPlaytimeMinutes, 6100);
+});
+
+test("GET /api/users/:userId/profile returns 404 for unknown user", async () => {
+  const accessToken = await createAccessToken();
+  const response = await request(app)
+    .get("/api/users/usr_404/profile")
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  assert.equal(response.status, 404);
+  assert.equal(response.body.error.code, "USER_NOT_FOUND");
+});
+
+test("GET /api/compatibility/:userA/:userB returns overlap payload", async () => {
+  const accessToken = await createAccessToken();
 
   const response = await request(app)
     .get("/api/compatibility/usr_1/usr_2")
@@ -53,4 +76,17 @@ test("GET /api/compatibility/:userA/:userB returns overlap payload", async () =>
   assert.equal(response.status, 200);
   assert.equal(response.body.userA, "usr_1");
   assert.equal(response.body.userB, "usr_2");
+  assert.equal(response.body.overlapIndex, 0.4);
+  assert.deepEqual(response.body.sharedGenres, ["Action", "RPG"]);
+});
+
+test("GET /api/compatibility/:userA/:userB returns 404 for unknown user", async () => {
+  const accessToken = await createAccessToken();
+
+  const response = await request(app)
+    .get("/api/compatibility/usr_1/usr_404")
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  assert.equal(response.status, 404);
+  assert.equal(response.body.error.code, "USER_NOT_FOUND");
 });
