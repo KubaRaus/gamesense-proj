@@ -27,12 +27,28 @@ test("GET /api/users/:userId/profile requires authorization", async () => {
   const response = await request(app).get("/api/users/usr_1/profile");
   assert.equal(response.status, 401);
   assert.equal(response.body.error.code, "UNAUTHORIZED");
+  assert.equal(typeof response.body.error.requestId, "string");
+});
+
+test("GET /api/users/:userId/profile rejects invalid token", async () => {
+  const response = await request(app)
+    .get("/api/users/usr_1/profile")
+    .set("Authorization", "Bearer invalid-token");
+
+  assert.equal(response.status, 401);
+  assert.equal(response.body.error.code, "UNAUTHORIZED");
 });
 
 test("GET /api/compatibility/:userA/:userB returns overlap payload", async () => {
+  const authResponse = await request(app)
+    .post("/api/auth/steam/callback")
+    .send({ openIdResponse: "ok" });
+
+  const accessToken = authResponse.body.accessToken as string;
+
   const response = await request(app)
     .get("/api/compatibility/usr_1/usr_2")
-    .set("Authorization", "Bearer test-token");
+    .set("Authorization", `Bearer ${accessToken}`);
 
   assert.equal(response.status, 200);
   assert.equal(response.body.userA, "usr_1");
