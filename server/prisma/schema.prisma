@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  steamId   String     @unique
+  username  String
+  avatarUrl String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  games     UserGame[]
+}
+
+model Game {
+  id          String      @id @default(cuid())
+  igdbId      Int         @unique
+  name        String
+  coverUrl    String?
+  releaseYear Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  users       UserGame[]
+  genres      GameGenre[]
+}
+
+model Genre {
+  id         String      @id @default(cuid())
+  igdbGenreId Int        @unique
+  name       String
+  games      GameGenre[]
+}
+
+model UserGame {
+  id              String   @id @default(cuid())
+  userId          String
+  gameId          String
+  playtimeMinutes Int      @default(0)
+  lastPlayedAt    DateTime?
+  rating          Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+  @@index([userId])
+  @@index([gameId])
+}
+
+model GameGenre {
+  gameId    String
+  genreId   String
+  createdAt DateTime @default(now())
+
+  game  Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([gameId, genreId])
+  @@index([genreId])
+}
