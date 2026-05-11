@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import { apiRouter } from "./routes";
 
 export function createApp() {
   const app = express();
@@ -10,6 +11,8 @@ export function createApp() {
   app.get("/health", (_req, res) => {
     res.status(200).json({ status: "ok", service: "gamesense-server" });
   });
+
+  app.use("/api", apiRouter);
 
   return app;
 }

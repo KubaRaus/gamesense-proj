@@ -2,6 +2,17 @@ export interface AuthSteamCallbackRequest {
   openIdResponse: string;
 }
 
+export interface AuthSteamCallbackResponse {
+  accessToken: string;
+  expiresIn: number;
+  user: {
+    id: string;
+    steamId: string;
+    username: string;
+    avatarUrl: string | null;
+  };
+}
+
 export interface UserProfileResponse {
   id: string;
   steamId: string;
@@ -9,6 +20,16 @@ export interface UserProfileResponse {
   avatarUrl: string | null;
   totalPlaytimeMinutes: number;
   gameCount: number;
+  topGenres: Array<{
+    name: string;
+    playtimeMinutes: number;
+  }>;
+  recentGames: Array<{
+    gameId: string;
+    name: string;
+    playtimeMinutes: number;
+    lastPlayedAt: string | null;
+  }>;
 }
 
 export interface CompatibilityResponse {
@@ -18,4 +39,16 @@ export interface CompatibilityResponse {
   sharedGenres: string[];
   uniqueToA: string[];
   uniqueToB: string[];
+  debug: {
+    intersectionCount: number;
+    unionCount: number;
+  };
+}
+
+export interface ApiErrorResponse {
+  error: {
+    code: string;
+    message: string;
+    requestId: string;
+  };
 }

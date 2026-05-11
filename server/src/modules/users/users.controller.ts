@@ -1,0 +1,16 @@
+import type { Request, Response } from "express";
+import { sendApiError } from "../../shared/http/errors";
+import { userProfileParamsSchema } from "./users.schemas";
+import { UsersService } from "./users.service";
+
+const usersService = new UsersService();
+
+export async function userProfileController(req: Request, res: Response) {
+  const parsed = userProfileParamsSchema.safeParse(req.params);
+  if (!parsed.success) {
+    return sendApiError(res, 400, "INVALID_PARAMS", "Invalid user profile parameters.");
+  }
+
+  const response = await usersService.getProfile(parsed.data);
+  return res.status(200).json(response);
+}
