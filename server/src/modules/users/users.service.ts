@@ -1,10 +1,13 @@
 import type { UserProfileResponse } from "@gamesense/types";
 import type { UserProfileParams } from "./users.schemas";
-import { getMockUserById } from "./users.mock";
+import type { UsersRepository } from "./users.repository";
+import { InMemoryUsersRepository } from "./in-memory-users.repository";
 
 export class UsersService {
+  constructor(private readonly usersRepository: UsersRepository = new InMemoryUsersRepository()) {}
+
   async getProfile(params: UserProfileParams): Promise<UserProfileResponse | null> {
-    const user = getMockUserById(params.userId);
+    const user = await this.usersRepository.findById(params.userId);
     if (!user) {
       return null;
     }

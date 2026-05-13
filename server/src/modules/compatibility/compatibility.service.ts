@@ -1,11 +1,14 @@
 import type { CompatibilityResponse } from "@gamesense/types";
 import type { CompatibilityParams } from "./compatibility.schemas";
-import { getMockUserGenreSet } from "../users/users.mock";
+import type { UsersRepository } from "../users/users.repository";
+import { InMemoryUsersRepository } from "../users/in-memory-users.repository";
 
 export class CompatibilityService {
+  constructor(private readonly usersRepository: UsersRepository = new InMemoryUsersRepository()) {}
+
   async getCompatibility(params: CompatibilityParams): Promise<CompatibilityResponse | null> {
-    const genresA = getMockUserGenreSet(params.userA);
-    const genresB = getMockUserGenreSet(params.userB);
+    const genresA = await this.usersRepository.getGenreSet(params.userA);
+    const genresB = await this.usersRepository.getGenreSet(params.userB);
     if (!genresA || !genresB) {
       return null;
     }

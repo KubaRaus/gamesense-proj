@@ -2,8 +2,9 @@ import type { Request, Response } from "express";
 import { sendApiError } from "../../shared/http/errors";
 import { compatibilityParamsSchema } from "./compatibility.schemas";
 import { CompatibilityService } from "./compatibility.service";
+import { InMemoryUsersRepository } from "../users/in-memory-users.repository";
 
-const compatibilityService = new CompatibilityService();
+const compatibilityService = new CompatibilityService(new InMemoryUsersRepository());
 
 export async function compatibilityController(req: Request, res: Response) {
   const parsed = compatibilityParamsSchema.safeParse(req.params);

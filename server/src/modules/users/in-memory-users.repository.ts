@@ -1,20 +1,7 @@
-interface MockUserGame {
-  gameId: string;
-  name: string;
-  genres: string[];
-  playtimeMinutes: number;
-  lastPlayedAt: string | null;
-}
+import type { UsersRepository } from "./users.repository";
+import type { UserRecord } from "./users.types";
 
-interface MockUser {
-  id: string;
-  steamId: string;
-  username: string;
-  avatarUrl: string | null;
-  games: MockUserGame[];
-}
-
-const MOCK_USERS: MockUser[] = [
+const IN_MEMORY_USERS: UserRecord[] = [
   {
     id: "usr_1",
     steamId: "76561190000000001",
@@ -61,15 +48,17 @@ const MOCK_USERS: MockUser[] = [
   }
 ];
 
-export function getMockUserById(userId: string) {
-  return MOCK_USERS.find((user) => user.id === userId) ?? null;
-}
-
-export function getMockUserGenreSet(userId: string) {
-  const user = getMockUserById(userId);
-  if (!user) {
-    return null;
+export class InMemoryUsersRepository implements UsersRepository {
+  async findById(userId: string): Promise<UserRecord | null> {
+    return IN_MEMORY_USERS.find((user) => user.id === userId) ?? null;
   }
 
-  return new Set(user.games.flatMap((game) => game.genres));
+  async getGenreSet(userId: string): Promise<Set<string> | null> {
+    const user = await this.findById(userId);
+    if (!user) {
+      return null;
+    }
+
+    return new Set(user.games.flatMap((game) => game.genres));
+  }
 }

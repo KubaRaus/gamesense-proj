@@ -2,8 +2,9 @@ import type { Request, Response } from "express";
 import { sendApiError } from "../../shared/http/errors";
 import { userProfileParamsSchema } from "./users.schemas";
 import { UsersService } from "./users.service";
+import { InMemoryUsersRepository } from "./in-memory-users.repository";
 
-const usersService = new UsersService();
+const usersService = new UsersService(new InMemoryUsersRepository());
 
 export async function userProfileController(req: Request, res: Response) {
   const parsed = userProfileParamsSchema.safeParse(req.params);
