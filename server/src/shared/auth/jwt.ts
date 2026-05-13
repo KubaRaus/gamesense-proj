@@ -1,16 +1,12 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
+import { getJwtSecret } from "../config/runtime-env";
 
-const DEFAULT_JWT_SECRET = "gamesense-dev-secret";
 const ACCESS_TOKEN_EXPIRES_IN_SECONDS = 3600;
 
 export interface AccessTokenClaims extends JwtPayload {
   sub: string;
   steamId: string;
   username: string;
-}
-
-function getJwtSecret() {
-  return process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
 }
 
 export function signAccessToken(claims: Omit<AccessTokenClaims, keyof JwtPayload>): string {

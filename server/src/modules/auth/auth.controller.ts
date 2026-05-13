@@ -1,9 +1,7 @@
 import type { Request, Response } from "express";
 import { sendApiError } from "../../shared/http/errors";
 import { steamCallbackBodySchema } from "./auth.schemas";
-import { AuthService } from "./auth.service";
-
-const authService = new AuthService();
+import { authService } from "./auth.dependencies";
 
 export async function steamCallbackController(req: Request, res: Response) {
   const parsed = steamCallbackBodySchema.safeParse(req.body);

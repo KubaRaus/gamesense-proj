@@ -2,8 +2,11 @@ import cors from "cors";
 import express from "express";
 import { apiRouter } from "./routes";
 import { requestIdMiddleware } from "./shared/middleware/request-id";
+import { assertRuntimeEnv } from "./shared/config/runtime-env";
 
 export function createApp() {
+  assertRuntimeEnv();
+
   const app = express();
 
   app.use(cors());

@@ -3,6 +3,8 @@ import test from "node:test";
 import request from "supertest";
 import { createApp } from "../src/app";
 
+process.env.JWT_SECRET ??= "test-jwt-secret";
+
 const app = createApp();
 
 async function createAccessToken() {

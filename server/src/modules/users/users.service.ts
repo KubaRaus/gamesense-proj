@@ -1,13 +1,12 @@
 import type { UserProfileResponse } from "@gamesense/types";
-import type { UserProfileParams } from "./users.schemas";
 import type { UsersRepository } from "./users.repository";
-import { InMemoryUsersRepository } from "./in-memory-users.repository";
+import type { GetUserProfileQuery } from "./users.use-cases";
 
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository = new InMemoryUsersRepository()) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
-  async getProfile(params: UserProfileParams): Promise<UserProfileResponse | null> {
-    const user = await this.usersRepository.findById(params.userId);
+  async getProfile(query: GetUserProfileQuery): Promise<UserProfileResponse | null> {
+    const user = await this.usersRepository.findById(query.userId);
     if (!user) {
       return null;
     }

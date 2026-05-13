@@ -1,13 +1,24 @@
 import type { GameSearchResponse } from "@gamesense/types";
-import { IgdbClient } from "../../integrations/igdb/igdb.client";
-import type { GamesSearchQuery } from "./games.schemas";
+import type { SearchGamesQuery } from "./games.use-cases";
 
-const igdbClient = new IgdbClient();
+interface GamesCatalogGateway {
+  searchGames(query: string, limit: number): Promise<
+    Array<{
+      igdbId: number;
+      name: string;
+      coverUrl: string | null;
+      releaseYear: number | null;
+      genres: string[];
+    }>
+  >;
+}
 
 export class GamesService {
-  async searchGames(query: GamesSearchQuery): Promise<GameSearchResponse> {
+  constructor(private readonly gamesCatalogGateway: GamesCatalogGateway) {}
+
+  async searchGames(query: SearchGamesQuery): Promise<GameSearchResponse> {
     const limit = query.limit ?? 20;
-    const results = await igdbClient.searchGames(query.q, limit);
+    const results = await this.gamesCatalogGateway.searchGames(query.q, limit);
 
     return {
       query: query.q,

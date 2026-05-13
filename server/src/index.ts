@@ -1,7 +1,8 @@
 import "dotenv/config";
 import { createApp } from "./app";
+import { getServerPort } from "./shared/config/runtime-env";
 
-const port = Number(process.env.PORT ?? 3000);
+const port = getServerPort();
 
 const app = createApp();
 

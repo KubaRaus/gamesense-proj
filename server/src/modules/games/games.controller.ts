@@ -1,9 +1,7 @@
 import type { Request, Response } from "express";
 import { sendApiError } from "../../shared/http/errors";
 import { gamesSearchQuerySchema } from "./games.schemas";
-import { GamesService } from "./games.service";
-
-const gamesService = new GamesService();
+import { gamesService } from "./games.dependencies";
 
 export async function gamesSearchController(req: Request, res: Response) {
   const parsed = gamesSearchQuerySchema.safeParse(req.query);
