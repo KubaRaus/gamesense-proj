@@ -36,12 +36,28 @@ export interface CompatibilityResponse {
   userA: string;
   userB: string;
   overlapIndex: number;
+  overlapPercentage: number;
+  presenceOverlapIndex: number;
+  method: "weighted-jaccard-playtime";
   sharedGenres: string[];
   uniqueToA: string[];
   uniqueToB: string[];
+  commonGames: Array<{
+    gameId: string;
+    name: string;
+    userAPlaytimeMinutes: number;
+    userBPlaytimeMinutes: number;
+  }>;
+  genreBreakdown: Array<{
+    genre: string;
+    userAWeight: number;
+    userBWeight: number;
+  }>;
   debug: {
     intersectionCount: number;
     unionCount: number;
+    weightedIntersection: number;
+    weightedUnion: number;
   };
 }
 

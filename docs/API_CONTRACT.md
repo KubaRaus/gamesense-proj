@@ -92,7 +92,7 @@ JWT required.
 `GET /api/compatibility/:userA/:userB`
 
 ### Purpose
-Calculate compatibility between two players using Jaccard index over genre sets.
+Calculate compatibility using weighted Jaccard over normalized genre playtime distributions.
 
 ### Auth Requirement
 JWT required.
@@ -107,13 +107,33 @@ JWT required.
 {
   "userA": "usr_a",
   "userB": "usr_b",
-  "overlapIndex": 0.57,
+  "overlapIndex": 0.5688,
+  "overlapPercentage": 57,
+  "presenceOverlapIndex": 0.4,
+  "method": "weighted-jaccard-playtime",
   "sharedGenres": ["RPG", "Action"],
   "uniqueToA": ["Strategy"],
   "uniqueToB": ["Simulation"],
+  "commonGames": [
+    {
+      "gameId": "game_7346",
+      "name": "Elden Ring",
+      "userAPlaytimeMinutes": 4200,
+      "userBPlaytimeMinutes": 2750
+    }
+  ],
+  "genreBreakdown": [
+    {
+      "genre": "Action",
+      "userAWeight": 0.5,
+      "userBWeight": 0.3809
+    }
+  ],
   "debug": {
-    "intersectionCount": 4,
-    "unionCount": 7
+    "intersectionCount": 2,
+    "unionCount": 5,
+    "weightedIntersection": 0.7251,
+    "weightedUnion": 1.2749
   }
 }
 ```

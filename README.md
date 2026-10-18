@@ -25,6 +25,9 @@ npm install
 
 - Copy `server/.env.example` to `server/.env`
 - Copy `client/.env.example` to `client/.env`
+- Keep `GAMES_CATALOG_PROVIDER="mock"` for local demo data, or set it to `"igdb"` and provide credentials from the Twitch Developer Console:
+  - `IGDB_CLIENT_ID`
+  - `IGDB_CLIENT_SECRET`
 
 3. Start both apps:
 
@@ -51,8 +54,8 @@ From repository root:
 
 - Steam auth callback prototype with signed JWT
 - Protected profile endpoint (`Bearer` token required)
-- Games search endpoint (IGDB integration scaffold with mock results)
-- Taste Overlap endpoint (Jaccard index on prototype genre sets)
+- Games search endpoint with selectable mock or live IGDB provider
+- Taste Overlap endpoint using weighted Jaccard over playtime-normalized genre preferences
 - Interactive frontend panel for manual API testing
 
 ## API (Prototype)
@@ -64,7 +67,7 @@ Base URL: `http://localhost:3000/api`
   - Returns access token + basic user payload
 
 - `GET /games/search?q=ha`
-  - Returns game list from prototype IGDB adapter
+  - Returns mapped games from the configured catalog provider
 
 - `GET /users/:userId/profile`
   - Requires `Authorization: Bearer <token>`
@@ -72,7 +75,7 @@ Base URL: `http://localhost:3000/api`
 
 - `GET /compatibility/:userA/:userB`
   - Requires `Authorization: Bearer <token>`
-  - Returns compatibility score and Jaccard breakdown
+  - Returns weighted compatibility score, shared genres, common games and a genre-weight breakdown
 
 ## Testing
 
@@ -89,6 +92,8 @@ What is covered now:
 - protected routes auth behavior
 - profile data flow + not-found case
 - compatibility result + not-found case
+- weighted Jaccard edge cases
+- IGDB token caching and response mapping
 
 ## Project Structure
 

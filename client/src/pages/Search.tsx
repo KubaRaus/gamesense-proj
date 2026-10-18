@@ -17,19 +17,7 @@ export const Search = () => {
     }
   };
 
-  // Zabezpieczenie: szukamy tablicy w odpowiedzi niezależnie od jej struktury
-  const getGamesList = () => {
-    const data = gamesMutation.data;
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    // Sprawdzamy najczęstsze formaty zwracane przez backendy (w tym Express.js)
-    if (Array.isArray(data.data)) return data.data;
-    if (Array.isArray(data.items)) return data.items;
-    if (Array.isArray(data.games)) return data.games;
-    return [];
-  };
-
-  const gamesList = getGamesList();
+  const gamesList = gamesMutation.data?.items ?? [];
   const hasSearched = gamesMutation.isSuccess;
 
   return (
@@ -70,17 +58,17 @@ export const Search = () => {
 
       {/* Siatka Wyników (CSS Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {gamesList.map((game: any, index: number) => (
+        {gamesList.map((game) => (
           <div 
-            key={game?.id || index} 
+            key={game.id}
             className="bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-700 hover:border-green-400 transition-all hover:-translate-y-1 group cursor-pointer flex flex-col"
           >
              {/* Miejsce na okładkę gry */}
              <div className="aspect-[3/4] bg-slate-700 flex items-center justify-center overflow-hidden">
-               {game?.cover?.url || game?.cover ? (
+               {game.coverUrl ? (
                  <img 
-                   src={game.cover.url || game.cover} 
-                   alt={game?.name || 'Brak tytułu'} 
+                   src={game.coverUrl}
+                   alt={game.name}
                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                  />
                ) : (
@@ -91,16 +79,23 @@ export const Search = () => {
              {/* Dane o grze */}
              <div className="p-4 flex flex-col flex-1">
                <h3 className="font-semibold text-lg text-white mb-2 line-clamp-2">
-                 {game?.name || 'Nieznany tytuł'}
+                 {game.name}
                </h3>
                
-               {/* Podstawowe detale gry, jeśli API je dostarcza */}
                <div className="mt-auto flex flex-wrap gap-2">
-                 {game?.first_release_date && (
+                 {game.releaseYear && (
                    <span className="inline-block bg-slate-900 text-xs px-2 py-1 rounded text-slate-400 border border-slate-700">
-                     {new Date(game.first_release_date * 1000).getFullYear()}
+                     {game.releaseYear}
                    </span>
                  )}
+                 {game.genres.map((genre) => (
+                   <span
+                     key={genre}
+                     className="inline-block bg-slate-900 text-xs px-2 py-1 rounded text-slate-300 border border-slate-700"
+                   >
+                     {genre}
+                   </span>
+                 ))}
                  <span className="inline-block bg-slate-900 text-xs px-2 py-1 rounded text-green-400 border border-green-900/50">
                    Gra wideo
                  </span>

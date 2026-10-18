@@ -78,8 +78,19 @@ test("GET /api/compatibility/:userA/:userB returns overlap payload", async () =>
   assert.equal(response.status, 200);
   assert.equal(response.body.userA, "usr_1");
   assert.equal(response.body.userB, "usr_2");
-  assert.equal(response.body.overlapIndex, 0.4);
+  assert.equal(response.body.overlapIndex, 0.5688);
+  assert.equal(response.body.overlapPercentage, 57);
+  assert.equal(response.body.presenceOverlapIndex, 0.4);
+  assert.equal(response.body.method, "weighted-jaccard-playtime");
   assert.deepEqual(response.body.sharedGenres, ["Action", "RPG"]);
+  assert.deepEqual(response.body.commonGames, [
+    {
+      gameId: "game_7346",
+      name: "Elden Ring",
+      userAPlaytimeMinutes: 4200,
+      userBPlaytimeMinutes: 2750
+    }
+  ]);
 });
 
 test("GET /api/compatibility/:userA/:userB returns 404 for unknown user", async () => {

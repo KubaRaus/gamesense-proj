@@ -52,13 +52,4 @@ export class InMemoryUsersRepository implements UsersRepository {
   async findById(userId: string): Promise<UserRecord | null> {
     return IN_MEMORY_USERS.find((user) => user.id === userId) ?? null;
   }
-
-  async getGenreSet(userId: string): Promise<Set<string> | null> {
-    const user = await this.findById(userId);
-    if (!user) {
-      return null;
-    }
-
-    return new Set(user.games.flatMap((game) => game.genres));
-  }
 }

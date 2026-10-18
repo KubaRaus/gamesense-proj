@@ -8,8 +8,7 @@ import { getCompatibility } from '../shared/api/gamesense-api';
 export const Overlap = () => {
   const [userA, setUserA] = useState('usr_1');
   const [userB, setUserB] = useState('usr_2');
-  // Na potrzeby prototypu zakładamy sztuczny token, docelowo pobierzesz go z Zustand/localStorage
-  const token = localStorage.getItem('gamesense.prototype.token') || 'mock_token';
+  const token = localStorage.getItem('gamesense.prototype.token') || '';
 
   const compatibilityMutation = useMutation({
     mutationFn: () => getCompatibility(userA, userB, token)
@@ -22,9 +21,7 @@ export const Overlap = () => {
     }
   };
 
-  // Dane do wykresu (zakładamy, że backend zwraca procentowy wynik zgodności np. { score: 65 })
-  // Zabezpieczamy dane na wypadek innej struktury
-  const score = compatibilityMutation.data?.score || compatibilityMutation.data?.compatibility || 0;
+  const score = compatibilityMutation.data?.overlapPercentage ?? 0;
   
   const chartData = [
     { name: 'Zgodność', value: score },
@@ -66,7 +63,7 @@ export const Overlap = () => {
         </div>
         <button 
           type="submit" 
-          disabled={compatibilityMutation.isPending || !userA || !userB}
+          disabled={compatibilityMutation.isPending || !userA || !userB || !token}
           className="w-full md:w-auto h-[50px] bg-green-500 hover:bg-green-400 text-slate-900 font-bold px-8 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
         >
           {compatibilityMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Oblicz dopasowanie'}
@@ -101,7 +98,9 @@ export const Overlap = () => {
                 <span className="text-3xl font-bold text-white">{score}%</span>
               </div>
             </div>
-            <p className="text-xs text-slate-500 mt-4 text-center">Obliczono metodą Jaccarda</p>
+            <p className="text-xs text-slate-500 mt-4 text-center">
+              Ważony Jaccard: gatunki i udział czasu gry
+            </p>
           </div>
 
           {/* Lista Wspólnych Gier */}
@@ -112,14 +111,15 @@ export const Overlap = () => {
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Opcjonalne: Mapowanie po prawdziwych grach, jeśli API je zwraca */}
               {compatibilityMutation.data?.commonGames?.length > 0 ? (
-                compatibilityMutation.data.commonGames.map((game: any, idx: number) => (
-                  <div key={idx} className="bg-slate-900 p-4 rounded-xl border border-slate-700 flex items-center gap-4">
+                compatibilityMutation.data.commonGames.map((game) => (
+                  <div key={game.gameId} className="bg-slate-900 p-4 rounded-xl border border-slate-700 flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-800 rounded-lg flex-shrink-0 border border-slate-600"></div>
                     <div>
-                      <p className="text-white font-medium">{game.name || 'Gra'}</p>
-                      <p className="text-xs text-slate-400">Znaleziona u obu graczy</p>
+                      <p className="text-white font-medium">{game.name}</p>
+                      <p className="text-xs text-slate-400">
+                        {game.userAPlaytimeMinutes} min / {game.userBPlaytimeMinutes} min
+                      </p>
                     </div>
                   </div>
                 ))
@@ -137,6 +137,12 @@ export const Overlap = () => {
          <div className="text-red-400 bg-red-900/20 p-4 rounded-xl border border-red-900/50 mt-8">
            Nie udało się obliczyć kompatybilności. Upewnij się, że wpisane ID są poprawne.
          </div>
+      )}
+
+      {!token && (
+        <div className="text-amber-300 bg-amber-900/20 p-4 rounded-xl border border-amber-900/50 mt-8">
+          Najpierw zaloguj się w panelu logowania, aby uzyskać token.
+        </div>
       )}
     </div>
   );
