@@ -9,6 +9,15 @@ export async function gamesSearchController(req: Request, res: Response) {
     return sendApiError(res, 400, "INVALID_QUERY", "Invalid games search query.");
   }
 
-  const response = await gamesService.searchGames(parsed.data);
-  return res.status(200).json(response);
+  try {
+    const response = await gamesService.searchGames(parsed.data);
+    return res.status(200).json(response);
+  } catch {
+    return sendApiError(
+      res,
+      502,
+      "GAMES_CATALOG_UNAVAILABLE",
+      "The games catalog is temporarily unavailable."
+    );
+  }
 }

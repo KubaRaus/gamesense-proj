@@ -7,8 +7,24 @@ function requireEnv(name: string): string {
   return value;
 }
 
+export type GamesCatalogProvider = "mock" | "igdb";
+
+export function getGamesCatalogProvider(): GamesCatalogProvider {
+  const provider = process.env.GAMES_CATALOG_PROVIDER ?? "mock";
+  if (provider !== "mock" && provider !== "igdb") {
+    throw new Error("GAMES_CATALOG_PROVIDER must be either 'mock' or 'igdb'.");
+  }
+
+  return provider;
+}
+
 export function assertRuntimeEnv() {
   requireEnv("JWT_SECRET");
+
+  if (getGamesCatalogProvider() === "igdb") {
+    requireEnv("IGDB_CLIENT_ID");
+    requireEnv("IGDB_CLIENT_SECRET");
+  }
 }
 
 export function getServerPort(): number {
@@ -17,4 +33,11 @@ export function getServerPort(): number {
 
 export function getJwtSecret(): string {
   return requireEnv("JWT_SECRET");
+}
+
+export function getIgdbCredentials() {
+  return {
+    clientId: requireEnv("IGDB_CLIENT_ID"),
+    clientSecret: requireEnv("IGDB_CLIENT_SECRET")
+  };
 }

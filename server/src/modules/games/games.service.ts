@@ -1,17 +1,6 @@
 import type { GameSearchResponse } from "@gamesense/types";
+import type { GamesCatalogGateway } from "./games-catalog.gateway";
 import type { SearchGamesQuery } from "./games.use-cases";
-
-interface GamesCatalogGateway {
-  searchGames(query: string, limit: number): Promise<
-    Array<{
-      igdbId: number;
-      name: string;
-      coverUrl: string | null;
-      releaseYear: number | null;
-      genres: string[];
-    }>
-  >;
-}
 
 export class GamesService {
   constructor(private readonly gamesCatalogGateway: GamesCatalogGateway) {}
