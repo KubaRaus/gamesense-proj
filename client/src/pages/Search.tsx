@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { AnyActionArg, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Search as SearchIcon, Loader2 } from 'lucide-react';
 import { searchGames } from '../shared/api/gamesense-api';
@@ -58,7 +58,7 @@ export const Search = () => {
 
       {/* Siatka Wyników (CSS Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {gamesList.map((game) => (
+        {gamesList.map((game:any) => (
           <div 
             key={game.id}
             className="bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-700 hover:border-green-400 transition-all hover:-translate-y-1 group cursor-pointer flex flex-col"
@@ -88,7 +88,7 @@ export const Search = () => {
                      {game.releaseYear}
                    </span>
                  )}
-                 {game.genres.map((genre) => (
+                 {game.genres.map((genre:any) => (
                    <span
                      key={genre}
                      className="inline-block bg-slate-900 text-xs px-2 py-1 rounded text-slate-300 border border-slate-700"

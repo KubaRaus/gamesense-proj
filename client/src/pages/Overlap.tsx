@@ -4,6 +4,8 @@ import { Users, Loader2, Gamepad2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 // Upewnij się, że ścieżka do api jest prawidłowa:
 import { getCompatibility } from '../shared/api/gamesense-api';
+// Importujemy nasz nowy komponent Loadera
+import { Loader } from '../components/Loader';
 
 export const Overlap = () => {
   const [userA, setUserA] = useState('usr_1');
@@ -70,9 +72,16 @@ export const Overlap = () => {
         </button>
       </form>
 
-      {/* Wyniki Analizy */}
+      {/* 1. STAN ŁADOWANIA: Wyświetlany podczas oczekiwania na dane */}
+      {compatibilityMutation.isPending && (
+        <div className="mb-8">
+          <Loader text="Analizowanie bibliotek Steam i obliczanie dopasowania..." />
+        </div>
+      )}
+
+      {/* 2. STAN SUKCESU: Wyniki Analizy */}
       {compatibilityMutation.isSuccess && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           
           {/* Wykres Recharts */}
           <div className="lg:col-span-1 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col items-center justify-center min-h-[300px]">
@@ -112,8 +121,8 @@ export const Overlap = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {compatibilityMutation.data?.commonGames?.length > 0 ? (
-                compatibilityMutation.data.commonGames.map((game) => (
-                  <div key={game.gameId} className="bg-slate-900 p-4 rounded-xl border border-slate-700 flex items-center gap-4">
+                compatibilityMutation.data.commonGames.map((game: { gameId: number, name: string, userAPlaytimeMinutes: number, userBPlaytimeMinutes: number }) => (
+                  <div key={game.gameId} className="bg-slate-900 p-4 rounded-xl border border-slate-700 flex items-center gap-4 hover:border-green-500/50 transition-colors">
                     <div className="w-12 h-12 bg-slate-800 rounded-lg flex-shrink-0 border border-slate-600"></div>
                     <div>
                       <p className="text-white font-medium">{game.name}</p>
@@ -125,7 +134,7 @@ export const Overlap = () => {
                 ))
               ) : (
                 <div className="col-span-full text-slate-400 flex items-center justify-center p-8 bg-slate-900/50 rounded-xl border border-slate-700 border-dashed">
-                  Brak precyzyjnej listy gier w odpowiedzi z API.
+                  Brak precyzyjnej listy gier w odpowiedzi z API lub gracze nie mają wspólnych gier.
                 </div>
               )}
             </div>
@@ -133,9 +142,10 @@ export const Overlap = () => {
         </div>
       )}
 
+      {/* 3. STAN BŁĘDU */}
       {compatibilityMutation.isError && (
          <div className="text-red-400 bg-red-900/20 p-4 rounded-xl border border-red-900/50 mt-8">
-           Nie udało się obliczyć kompatybilności. Upewnij się, że wpisane ID są poprawne.
+           Nie udało się obliczyć kompatybilności. Upewnij się, że wpisane ID są poprawne i backend odpowiada.
          </div>
       )}
 
