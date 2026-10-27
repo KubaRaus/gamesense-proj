@@ -100,7 +100,10 @@ test("IgdbClient resolves Steam app IDs to IGDB metadata", async () => {
   const metadata = await client.getBySteamAppIds([1245620, 1245620]);
 
   assert.equal(capturedRequest?.url, "https://api.igdb.com/v4/external_games");
-  assert.match(String(capturedRequest?.init?.body), /where category = 1/);
+  assert.match(
+    String(capturedRequest?.init?.body),
+    /where external_game_source = 1/
+  );
   assert.match(String(capturedRequest?.init?.body), /uid = \("1245620"\)/);
   assert.deepEqual(metadata, [
     {

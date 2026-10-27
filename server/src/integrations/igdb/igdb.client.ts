@@ -20,7 +20,7 @@ interface AccessTokenProvider {
 const IGDB_GAMES_URL = "https://api.igdb.com/v4/games";
 const IGDB_EXTERNAL_GAMES_URL = "https://api.igdb.com/v4/external_games";
 const IGDB_COVER_URL = "https://images.igdb.com/igdb/image/upload/t_cover_big";
-const STEAM_EXTERNAL_GAME_CATEGORY = 1;
+const STEAM_EXTERNAL_GAME_SOURCE = 1;
 const IGDB_BATCH_SIZE = 500;
 
 function escapeApicalypseSearch(value: string): string {
@@ -77,7 +77,7 @@ export class IgdbClient implements GamesCatalogGateway, SteamGameMetadataGateway
       const quotedAppIds = batch.map((appId) => `"${appId}"`).join(",");
       const body = [
         `fields uid,game.id,game.name,game.first_release_date,game.cover.image_id,game.genres.id,game.genres.name`,
-        `where category = ${STEAM_EXTERNAL_GAME_CATEGORY} & uid = (${quotedAppIds})`,
+        `where external_game_source = ${STEAM_EXTERNAL_GAME_SOURCE} & uid = (${quotedAppIds})`,
         `limit ${IGDB_BATCH_SIZE}`
       ].join("; ") + ";";
       const externalGames = await this.post<IgdbExternalGame[]>(

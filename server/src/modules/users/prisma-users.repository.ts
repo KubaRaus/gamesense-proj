@@ -97,13 +97,8 @@ export class PrismaUsersRepository
 
       for (const steamGame of games) {
         const gameMetadata = metadataBySteamAppId.get(steamGame.steamAppId);
-        const existingGame = await tx.game.findFirst({
-          where: {
-            OR: [
-              { steamAppId: steamGame.steamAppId },
-              ...(gameMetadata ? [{ igdbId: gameMetadata.igdbId }] : [])
-            ]
-          }
+        const existingGame = await tx.game.findUnique({
+          where: { steamAppId: steamGame.steamAppId }
         });
 
         const game = existingGame

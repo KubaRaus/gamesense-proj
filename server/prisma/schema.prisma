@@ -22,7 +22,7 @@ model User {
 model Game {
   id          String      @id @default(cuid())
   steamAppId  Int?        @unique
-  igdbId      Int?        @unique
+  igdbId      Int?
   name        String
   coverUrl    String?
   releaseYear Int?
@@ -30,6 +30,8 @@ model Game {
   updatedAt   DateTime    @updatedAt
   users       UserGame[]
   genres      GameGenre[]
+
+  @@index([igdbId])
 }
 
 model Genre {
