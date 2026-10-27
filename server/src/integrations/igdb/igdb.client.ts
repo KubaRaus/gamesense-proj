@@ -2,7 +2,15 @@ import type {
   CatalogGame,
   GamesCatalogGateway
 } from "../../modules/games/games-catalog.gateway";
-import type { IgdbApiGame, IgdbCredentials } from "./igdb.types";
+import type {
+  SteamGameMetadata,
+  SteamGameMetadataGateway
+} from "../../modules/users/steam-game-metadata.gateway";
+import type {
+  IgdbApiGame,
+  IgdbCredentials,
+  IgdbExternalGame
+} from "./igdb.types";
 import { IgdbTokenProvider } from "./igdb-token.provider";
 
 interface AccessTokenProvider {
@@ -10,7 +18,10 @@ interface AccessTokenProvider {
 }
 
 const IGDB_GAMES_URL = "https://api.igdb.com/v4/games";
+const IGDB_EXTERNAL_GAMES_URL = "https://api.igdb.com/v4/external_games";
 const IGDB_COVER_URL = "https://images.igdb.com/igdb/image/upload/t_cover_big";
+const STEAM_EXTERNAL_GAME_CATEGORY = 1;
+const IGDB_BATCH_SIZE = 500;
 
 function escapeApicalypseSearch(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
@@ -34,7 +45,7 @@ function mapGame(game: IgdbApiGame): CatalogGame {
   };
 }
 
-export class IgdbClient implements GamesCatalogGateway {
+export class IgdbClient implements GamesCatalogGateway, SteamGameMetadataGateway {
   private readonly tokenProvider: AccessTokenProvider;
 
   constructor(
@@ -47,14 +58,66 @@ export class IgdbClient implements GamesCatalogGateway {
   }
 
   async searchGames(query: string, limit: number): Promise<CatalogGame[]> {
-    const accessToken = await this.tokenProvider.getAccessToken();
     const body = [
       `search "${escapeApicalypseSearch(query)}"`,
       "fields id,name,first_release_date,cover.image_id,genres.name",
       `limit ${limit}`
     ].join("; ") + ";";
+    const payload = await this.post<IgdbApiGame[]>(IGDB_GAMES_URL, body);
 
-    const response = await this.fetchFn(IGDB_GAMES_URL, {
+    return payload.map(mapGame);
+  }
+
+  async getBySteamAppIds(steamAppIds: number[]): Promise<SteamGameMetadata[]> {
+    const uniqueAppIds = [...new Set(steamAppIds)].filter(Number.isInteger);
+    const results: SteamGameMetadata[] = [];
+
+    for (let index = 0; index < uniqueAppIds.length; index += IGDB_BATCH_SIZE) {
+      const batch = uniqueAppIds.slice(index, index + IGDB_BATCH_SIZE);
+      const quotedAppIds = batch.map((appId) => `"${appId}"`).join(",");
+      const body = [
+        `fields uid,game.id,game.name,game.first_release_date,game.cover.image_id,game.genres.id,game.genres.name`,
+        `where category = ${STEAM_EXTERNAL_GAME_CATEGORY} & uid = (${quotedAppIds})`,
+        `limit ${IGDB_BATCH_SIZE}`
+      ].join("; ") + ";";
+      const externalGames = await this.post<IgdbExternalGame[]>(
+        IGDB_EXTERNAL_GAMES_URL,
+        body
+      );
+
+      for (const externalGame of externalGames) {
+        const steamAppId = Number(externalGame.uid);
+        const game = externalGame.game;
+        if (!Number.isInteger(steamAppId) || !game?.id || !game.name) {
+          continue;
+        }
+
+        const imageId = game.cover?.image_id;
+        results.push({
+          steamAppId,
+          igdbId: game.id,
+          name: game.name,
+          coverUrl: imageId ? `${IGDB_COVER_URL}/${imageId}.jpg` : null,
+          releaseYear: toReleaseYear(game.first_release_date),
+          genres: (game.genres ?? [])
+            .filter(
+              (genre): genre is { id: number; name: string } =>
+                typeof genre.id === "number" && typeof genre.name === "string"
+            )
+            .map((genre) => ({
+              igdbGenreId: genre.id,
+              name: genre.name
+            }))
+        });
+      }
+    }
+
+    return results;
+  }
+
+  private async post<T>(url: string, body: string): Promise<T> {
+    const accessToken = await this.tokenProvider.getAccessToken();
+    const response = await this.fetchFn(url, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -71,9 +134,9 @@ export class IgdbClient implements GamesCatalogGateway {
 
     const payload = (await response.json()) as unknown;
     if (!Array.isArray(payload)) {
-      throw new Error("IGDB games request returned an invalid response.");
+      throw new Error("IGDB request returned an invalid response.");
     }
 
-    return (payload as IgdbApiGame[]).map(mapGame);
+    return payload as T;
   }
 }

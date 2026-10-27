@@ -16,6 +16,12 @@ export interface IgdbApiGame {
     image_id?: string;
   };
   genres?: Array<{
+    id?: number;
     name?: string;
   }>;
+}
+
+export interface IgdbExternalGame {
+  uid?: string;
+  game?: IgdbApiGame;
 }

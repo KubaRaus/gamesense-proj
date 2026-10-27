@@ -17,6 +17,7 @@ function requireUrl(name: string): string {
 }
 
 export type GamesCatalogProvider = "mock" | "igdb";
+export type DataProvider = "memory" | "prisma";
 
 export function getGamesCatalogProvider(): GamesCatalogProvider {
   const provider = process.env.GAMES_CATALOG_PROVIDER ?? "mock";
@@ -27,12 +28,24 @@ export function getGamesCatalogProvider(): GamesCatalogProvider {
   return provider;
 }
 
+export function getDataProvider(): DataProvider {
+  const provider = process.env.DATA_PROVIDER ?? "memory";
+  if (provider !== "memory" && provider !== "prisma") {
+    throw new Error("DATA_PROVIDER must be either 'memory' or 'prisma'.");
+  }
+
+  return provider;
+}
+
 export function assertRuntimeEnv() {
   requireEnv("JWT_SECRET");
-  requireEnv("DATABASE_URL");
   requireEnv("STEAM_API_KEY");
   requireUrl("SERVER_PUBLIC_URL");
   requireUrl("CLIENT_URL");
+
+  if (getDataProvider() === "prisma") {
+    requireEnv("DATABASE_URL");
+  }
 
   if (getGamesCatalogProvider() === "igdb") {
     requireEnv("IGDB_CLIENT_ID");

@@ -1,3 +1,9 @@
+import type { LibrarySyncRepository } from "./library-sync.repository";
+import type { SteamGameMetadata } from "./steam-game-metadata.gateway";
+import type {
+  SteamOwnedGame,
+  SteamPlayerProfile
+} from "./steam-library.gateway";
 import type { UsersRepository } from "./users.repository";
 import type { UserRecord } from "./users.types";
 
@@ -48,8 +54,52 @@ const IN_MEMORY_USERS: UserRecord[] = [
   }
 ];
 
-export class InMemoryUsersRepository implements UsersRepository {
+export class InMemoryUsersRepository
+  implements UsersRepository, LibrarySyncRepository
+{
   async findById(userId: string): Promise<UserRecord | null> {
     return IN_MEMORY_USERS.find((user) => user.id === userId) ?? null;
+  }
+
+  async synchronize(
+    profile: SteamPlayerProfile,
+    games: SteamOwnedGame[],
+    metadata: SteamGameMetadata[]
+  ): Promise<UserRecord> {
+    const metadataByAppId = new Map(
+      metadata.map((game) => [game.steamAppId, game])
+    );
+    const synchronizedGames = games.map((game) => {
+      const gameMetadata = metadataByAppId.get(game.steamAppId);
+      return {
+        gameId: gameMetadata
+          ? `game_${gameMetadata.igdbId}`
+          : `steam_${game.steamAppId}`,
+        name: gameMetadata?.name ?? game.name,
+        genres: gameMetadata?.genres.map((genre) => genre.name) ?? [],
+        playtimeMinutes: game.playtimeMinutes,
+        lastPlayedAt: game.lastPlayedAt?.toISOString() ?? null
+      };
+    });
+    const existingUser = IN_MEMORY_USERS.find(
+      (user) => user.steamId === profile.steamId
+    );
+
+    if (existingUser) {
+      existingUser.username = profile.username;
+      existingUser.avatarUrl = profile.avatarUrl;
+      existingUser.games = synchronizedGames;
+      return existingUser;
+    }
+
+    const user: UserRecord = {
+      id: `usr_${profile.steamId}`,
+      steamId: profile.steamId,
+      username: profile.username,
+      avatarUrl: profile.avatarUrl,
+      games: synchronizedGames
+    };
+    IN_MEMORY_USERS.push(user);
+    return user;
   }
 }
