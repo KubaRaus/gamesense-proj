@@ -7,6 +7,15 @@ function requireEnv(name: string): string {
   return value;
 }
 
+function requireUrl(name: string): string {
+  const value = requireEnv(name);
+  try {
+    return new URL(value).origin;
+  } catch {
+    throw new Error(`${name} must be a valid absolute URL.`);
+  }
+}
+
 export type GamesCatalogProvider = "mock" | "igdb";
 
 export function getGamesCatalogProvider(): GamesCatalogProvider {
@@ -20,6 +29,10 @@ export function getGamesCatalogProvider(): GamesCatalogProvider {
 
 export function assertRuntimeEnv() {
   requireEnv("JWT_SECRET");
+  requireEnv("DATABASE_URL");
+  requireEnv("STEAM_API_KEY");
+  requireUrl("SERVER_PUBLIC_URL");
+  requireUrl("CLIENT_URL");
 
   if (getGamesCatalogProvider() === "igdb") {
     requireEnv("IGDB_CLIENT_ID");
@@ -40,4 +53,16 @@ export function getIgdbCredentials() {
     clientId: requireEnv("IGDB_CLIENT_ID"),
     clientSecret: requireEnv("IGDB_CLIENT_SECRET")
   };
+}
+
+export function getSteamConfig() {
+  return {
+    apiKey: requireEnv("STEAM_API_KEY"),
+    serverPublicUrl: requireUrl("SERVER_PUBLIC_URL"),
+    clientUrl: requireUrl("CLIENT_URL")
+  };
+}
+
+export function getDatabaseUrl(): string {
+  return requireEnv("DATABASE_URL");
 }
