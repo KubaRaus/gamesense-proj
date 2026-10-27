@@ -15,7 +15,11 @@
     "build": "npm run build -w packages/types && npm run build -w server && npm run build -w client",
     "typecheck": "npm run build -w packages/types && npm run typecheck -w server && npm run typecheck -w client",
     "test": "npm run test -w server",
-    "lint": "npm run lint -w server && npm run lint -w client"
+    "lint": "npm run lint -w server && npm run lint -w client",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run prisma:migrate -w server",
+    "db:generate": "npm run prisma:generate -w server"
   },
   "engines": {
     "node": ">=20"

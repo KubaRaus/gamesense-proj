@@ -8,18 +8,21 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  steamId   String     @unique
-  username  String
-  avatarUrl String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  games     UserGame[]
+  id                String     @id @default(cuid())
+  steamId           String     @unique
+  username          String
+  avatarUrl         String?
+  lastLibrarySyncAt DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  games             UserGame[]
+  authCodes         AuthCode[]
 }
 
 model Game {
   id          String      @id @default(cuid())
-  igdbId      Int         @unique
+  steamAppId  Int?        @unique
+  igdbId      Int?        @unique
   name        String
   coverUrl    String?
   releaseYear Int?
@@ -31,9 +34,11 @@ model Game {
 
 model Genre {
   id         String      @id @default(cuid())
-  igdbGenreId Int        @unique
+  igdbGenreId Int?       @unique
   name       String
   games      GameGenre[]
+
+  @@unique([name])
 }
 
 model UserGame {
@@ -42,6 +47,7 @@ model UserGame {
   gameId          String
   playtimeMinutes Int      @default(0)
   lastPlayedAt    DateTime?
+  lastSyncedAt    DateTime @default(now())
   rating          Int?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -64,4 +70,18 @@ model GameGenre {
 
   @@id([gameId, genreId])
   @@index([genreId])
+}
+
+model AuthCode {
+  id         String    @id @default(cuid())
+  codeHash   String    @unique
+  userId     String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
