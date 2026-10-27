@@ -4,12 +4,51 @@ Base URL: `/api`
 Auth: `Authorization: Bearer <accessToken>`
 Content-Type: `application/json`
 
-## 1) Auth via Steam Callback
+## 1) Start Steam Authentication
 
-`POST /api/auth/steam/callback`
+`GET /api/auth/steam`
 
 ### Purpose
-Finalize Steam authentication and issue application JWT.
+Create a short-lived CSRF state, store it in an `HttpOnly` cookie, and redirect
+the browser to Steam OpenID 2.0.
+
+### Auth Requirement
+No prior JWT required.
+
+### Success Response
+`302 Found` with:
+- `Location: https://steamcommunity.com/openid/login?...`
+- `Set-Cookie: gamesense_steam_state=...; HttpOnly; SameSite=Lax`
+
+## 2) Steam OpenID Callback
+
+`GET /api/auth/steam/callback`
+
+### Purpose
+Validate the state cookie and Steam OpenID assertion, import the player's Steam
+profile and owned games, optionally enrich games with IGDB metadata, and create
+a one-time authorization code.
+
+This endpoint is called by Steam. It is not intended for direct API clients.
+
+### Success Response
+`302 Found` to:
+
+```text
+CLIENT_URL/auth/callback?code=<one-time-code>
+```
+
+The code expires after 60 seconds and can be consumed once.
+
+### Error Response
+`302 Found` to `CLIENT_URL/auth/callback?error=<reason>`, where reason is:
+- `invalid_callback`
+- `invalid_state`
+- `steam_auth_failed`
+
+## 3) Exchange Authorization Code
+
+`POST /api/auth/steam/exchange`
 
 ### Auth Requirement
 No prior JWT required.
@@ -18,7 +57,7 @@ No prior JWT required.
 
 ```json
 {
-  "openIdResponse": "string"
+  "code": "string"
 }
 ```
 
@@ -38,11 +77,11 @@ No prior JWT required.
 ```
 
 ### Error Responses
-- `400` invalid callback payload
-- `401` steam authentication failed
+- `400 INVALID_BODY` invalid request payload
+- `401 INVALID_AUTH_CODE` code is invalid, expired, or already consumed
 - `500` internal error
 
-## 2) Player Profile
+## 4) Player Profile
 
 `GET /api/users/:userId/profile`
 
@@ -87,7 +126,7 @@ JWT required.
 - `404` user not found
 - `500` internal error
 
-## 3) Taste Overlap Compatibility
+## 5) Taste Overlap Compatibility
 
 `GET /api/compatibility/:userA/:userB`
 
