@@ -1,5 +1,5 @@
-export interface AuthSteamCallbackRequest {
-  openIdResponse: string;
+export interface AuthSteamExchangeRequest {
+  code: string;
 }
 
 export interface AuthSteamCallbackResponse {
