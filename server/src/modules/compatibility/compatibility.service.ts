@@ -44,7 +44,8 @@ export class CompatibilityService {
         gameId: game.gameId,
         name: game.name,
         userAPlaytimeMinutes: game.playtimeMinutes,
-        userBPlaytimeMinutes: gamesB.get(game.gameId)?.playtimeMinutes ?? 0
+        userBPlaytimeMinutes: gamesB.get(game.gameId)?.playtimeMinutes ?? 0,
+        coverUrl: game.coverUrl 
       }))
       .sort(
         (a, b) =>
@@ -64,6 +65,15 @@ export class CompatibilityService {
     return {
       userA: query.userA,
       userB: query.userB,
+      // Dodane informacje o użytkownikach
+      userAInfo: {
+        username: userA.username,
+        avatarUrl: userA.avatarUrl
+      },
+      userBInfo: {
+        username: userB.username,
+        avatarUrl: userB.avatarUrl
+      },
       overlapIndex,
       overlapPercentage: Math.round(overlapIndex * 100),
       presenceOverlapIndex: round(presenceOverlapIndex),

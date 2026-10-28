@@ -4,6 +4,7 @@ export interface UserLibraryGame {
   genres: string[];
   playtimeMinutes: number;
   lastPlayedAt: string | null;
+  coverUrl?: string | null;
 }
 
 export interface UserRecord {

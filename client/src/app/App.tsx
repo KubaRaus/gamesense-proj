@@ -9,6 +9,10 @@ import { Search } from '../pages/Search';
 import { Overlap } from '../pages/Overlap';
 import { Profile } from '../pages/Profile';
 import { Home } from '../pages/Home';
+import { Login } from '../pages/Login';
+
+// Import nowego widoku łapiącego powrót z logowania Steam
+import AuthCallback from '../pages/AuthCallback';
 
 
 export const App = () => {
@@ -28,11 +32,14 @@ export const App = () => {
         <main className="pb-12">
           <Routes>
             {/* Opcjonalnie: ustawienie wyszukiwarki jako strony głównej po wejściu na root (/) */}
-            <Route path="/" element={<Home />} />
-            
+            <Route path="/" element={<Home />} /> 
+            <Route path="/login" element={<Login />} />
             <Route path="/search" element={<Search />} />
             <Route path="/overlap" element={<Overlap />} />
             <Route path="/profile" element={<Profile />} />
+            
+            {/* NOWA ŚCIEŻKA: Obsługa powrotu z backendu po udanym/nieudanym logowaniu */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
         </main>
         

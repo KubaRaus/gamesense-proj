@@ -25,14 +25,15 @@ export class UsersService {
       .slice(0, 5)
       .map(([name, playtimeMinutes]) => ({ name, playtimeMinutes }));
 
+    // Zwracamy wszystkie gry posortowane np. po czasie gry lub dacie ostatniej rozgrywki, bez .slice(0, 5)
     const recentGames = [...user.games]
-      .sort((a, b) => (b.lastPlayedAt ?? "").localeCompare(a.lastPlayedAt ?? ""))
-      .slice(0, 5)
+      .sort((a, b) => b.playtimeMinutes - a.playtimeMinutes) // Sortowanie od najdłużej granych
       .map((game) => ({
         gameId: game.gameId,
         name: game.name,
         playtimeMinutes: game.playtimeMinutes,
-        lastPlayedAt: game.lastPlayedAt
+        lastPlayedAt: game.lastPlayedAt,
+        coverUrl: game.coverUrl
       }));
 
     return {

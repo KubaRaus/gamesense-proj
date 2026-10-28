@@ -1,86 +1,77 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Search, Users, User, Gamepad2, LogIn } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Gamepad2, Search, User, LogOut, LogIn, Home, Users } from 'lucide-react';
 
 export const Navbar = () => {
+  const navigate = useNavigate();
   const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Funkcja sprawdzająca aktywną zakładkę
-  const isActive = (path: string) => location.pathname === path;
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, [location.pathname]);
 
-  // Symulacja stanu logowania. 
-  // Zmień na false, żeby przetestować, jak znika Profil i pojawia się przycisk "Zaloguj się".
-  // Docelowo: const isLoggedIn = Boolean(localStorage.getItem('token'));
-  const isLoggedIn = true; 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    setIsAuthenticated(false);
+    navigate('/');
+  };
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-800 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Lewa strona: Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <Gamepad2 className="text-emerald-500 group-hover:scale-110 transition-transform duration-300" size={30} />
-            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent hidden sm:block">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity group">
+            <Gamepad2 className="w-8 h-8 text-emerald-500 group-hover:scale-110 transition-transform" />
+            <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-wider">
               GameSense
             </span>
           </Link>
 
-          {/* Środek: Główne zakładki (dostępne dla wszystkich) */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Link
-              to="/search"
-              className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-200 ${
-                isActive('/search') 
-                  ? 'bg-slate-800 text-emerald-400 shadow-inner' 
-                  : 'text-slate-300 hover:bg-slate-800/60 hover:text-emerald-400'
-              }`}
-            >
-              <Search size={18} />
-              <span className="font-semibold text-sm hidden md:block">Wyszukiwarka</span>
+          <div className="flex items-center gap-2 sm:gap-6">
+            <Link to="/" className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors text-sm font-medium">
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">Główna</span>
             </Link>
 
-            <Link
-              to="/overlap"
-              className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-200 ${
-                isActive('/overlap') 
-                  ? 'bg-slate-800 text-emerald-400 shadow-inner' 
-                  : 'text-slate-300 hover:bg-slate-800/60 hover:text-emerald-400'
-              }`}
-            >
-              <Users size={18} />
-              <span className="font-semibold text-sm hidden md:block">Taste Overlap</span>
-            </Link>
-          </div>
-
-          {/* Prawa strona: Strefa Użytkownika */}
-          <div className="flex items-center gap-2">
-            {isLoggedIn ? (
-              /* Zalogowany: Widzi tylko link do swojego profilu */
-              <Link
-                to="/profile"
-                className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-200 ${
-                  isActive('/profile') 
-                    ? 'bg-slate-800 text-emerald-400 shadow-inner' 
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-emerald-400'
-                }`}
-              >
-                <User size={18} />
-                <span className="font-semibold text-sm hidden sm:block">Mój Profil</span>
-              </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to="/search" className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors text-sm font-medium">
+                  <Search className="w-4 h-4" />
+                  <span className="hidden md:inline">Baza Gier</span>
+                </Link>
+                <Link to="/overlap" className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors text-sm font-medium">
+                  <Users className="w-4 h-4" />
+                  <span className="hidden md:inline">Overlap (VS)</span>
+                </Link>
+                <Link to="/profile" className="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors text-sm font-medium border-l border-slate-700 pl-6 ml-2">
+                  <User className="w-4 h-4" />
+                  <span className="hidden md:inline">Twój Profil</span>
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 px-4 py-2 rounded-lg transition-all text-sm font-medium ml-2 border border-slate-700 hover:border-red-500/30"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Wyloguj</span>
+                </button>
+              </>
             ) : (
-              /* Niezalogowany: Widzi wezwanie do logowania */
               <Link 
-                to="/test" /* <-- Pamiętaj, aby zmienić /test na docelowy endpoint logowania z Waszego API */
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition-colors shadow-lg shadow-emerald-900/20"
+                to="/login" 
+                className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-5 py-2 rounded-lg transition-all text-sm font-bold ml-4 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]"
               >
-                <LogIn size={18} />
-                <span className="text-sm font-bold hidden sm:block">Zaloguj się</span>
+                <LogIn className="w-4 h-4" />
+                Zaloguj się
               </Link>
             )}
           </div>
-
         </div>
       </div>
     </nav>
   );
-};
+}

@@ -12,7 +12,9 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     verifyAccessToken(token);
     return next();
-  } catch {
+  } catch (error) {
+    // DODAJEMY TĘ LINIJKĘ, ŻEBY NAMIERZYĆ BŁĄD
+    console.error("🔥 Błąd weryfikacji tokenu JWT:", error);
     return sendApiError(res, 401, "UNAUTHORIZED", "Invalid or expired token.");
   }
 }

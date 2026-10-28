@@ -58,7 +58,8 @@ export async function steamCallbackController(req: Request, res: Response) {
     const callbackUrl = new URL("/auth/callback", authHttpConfig.clientUrl);
     callbackUrl.searchParams.set("code", code);
     return res.redirect(callbackUrl.toString());
-  } catch {
+  } catch (error) {
+    console.error("Error during Steam authentication:", error);
     return redirectWithError(res, "steam_auth_failed");
   }
 }

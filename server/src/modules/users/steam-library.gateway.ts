@@ -9,6 +9,7 @@ export interface SteamOwnedGame {
   name: string;
   playtimeMinutes: number;
   lastPlayedAt: Date | null;
+  coverUrl?: string | null;
 }
 
 export interface SteamLibraryGateway {

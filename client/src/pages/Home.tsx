@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Search, Sparkles, Users } from 'lucide-react';
 
 export const Home = () => {
-  // 4 unikalne kolumny okładek (24 różne gry)
   const col1Games = [
     "https://steamcdn-a.akamaihd.net/steam/apps/730/library_600x900_2x.jpg",     // CS2
     "https://steamcdn-a.akamaihd.net/steam/apps/1245620/library_600x900_2x.jpg", // Elden Ring
@@ -39,11 +38,10 @@ export const Home = () => {
     "https://steamcdn-a.akamaihd.net/steam/apps/1623730/library_600x900_2x.jpg", // Palworld
   ];
 
-  // Funkcja pomocnicza powielająca tablicę, żeby scroll był nieskończony i idealnie płynny
   const createInfiniteList = (games: string[]) => [...games, ...games, ...games, ...games];
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center overflow-hidden bg-slate-950">
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-slate-950 pt-16">
       
       <style>{`
         @keyframes scroll-up {
@@ -62,77 +60,66 @@ export const Home = () => {
         }
       `}</style>
 
-      {/* Tło z płynnie poruszającymi się kolumnami okładek */}
-      <div className="absolute inset-0 z-0 flex gap-4 sm:gap-6 justify-center items-center opacity-20 transform -skew-y-6 scale-125 pointer-events-none">
+      {/* Złagodzone, bardziej rozmyte tło */}
+      <div className="absolute inset-0 z-0 flex gap-4 sm:gap-6 justify-center items-center opacity-15 transform -skew-y-6 scale-125 pointer-events-none blur-[2px]">
         
-        {/* Kolumna 1 - Przewija się w górę */}
         <div className="flex flex-col gap-4 sm:gap-6 animate-infinite-scroll-up">
           {createInfiniteList(col1Games).map((url, i) => (
-            <img key={`col1-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-2xl shadow-2xl opacity-80 grayscale-[20%]" />
+            <img key={`col1-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-xl shadow-2xl opacity-70 grayscale-[30%]" />
           ))}
         </div>
-
-        {/* Kolumna 2 - Przewija się w dół */}
         <div className="flex flex-col gap-4 sm:gap-6 animate-infinite-scroll-down">
           {createInfiniteList(col2Games).map((url, i) => (
-            <img key={`col2-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-2xl shadow-2xl opacity-80 grayscale-[20%]" />
+            <img key={`col2-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-xl shadow-2xl opacity-70 grayscale-[30%]" />
           ))}
         </div>
-
-        {/* Kolumna 3 - Przewija się w górę (ukryta na najmniejszych telefonach) */}
         <div className="flex flex-col gap-4 sm:gap-6 animate-infinite-scroll-up hidden md:flex">
           {createInfiniteList(col3Games).map((url, i) => (
-            <img key={`col3-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-2xl shadow-2xl opacity-80 grayscale-[20%]" />
+            <img key={`col3-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-xl shadow-2xl opacity-70 grayscale-[30%]" />
           ))}
         </div>
-
-        {/* Kolumna 4 - Przewija się w dół (widoczna tylko na dużych monitorach) */}
         <div className="flex flex-col gap-4 sm:gap-6 animate-infinite-scroll-down hidden lg:flex">
           {createInfiniteList(col4Games).map((url, i) => (
-            <img key={`col4-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-2xl shadow-2xl opacity-80 grayscale-[20%]" />
+            <img key={`col4-${i}`} src={url} alt="" className="w-32 sm:w-48 rounded-xl shadow-2xl opacity-70 grayscale-[30%]" />
           ))}
         </div>
 
       </div>
 
-      {/* Ciemne nakładki gradientowe, żeby tło nie zjadało tekstu */}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent z-0 pointer-events-none" />
-      <div className="absolute inset-0 bg-slate-950/40 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/20 z-0 pointer-events-none" />
 
-      {/* Główna zawartość tekstowa */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-[-5vh] animate-in fade-in slide-in-from-bottom-16 duration-1000 ease-out fill-mode-both">
+      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-[-5vh] animate-in fade-in slide-in-from-bottom-16 duration-1000 ease-out fill-mode-both">
         
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-8 backdrop-blur-sm shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-8 backdrop-blur-sm shadow-[0_0_15px_rgba(16,185,129,0.15)]">
           <Sparkles size={16} className="animate-pulse" />
-          <span className="text-sm font-semibold tracking-wide uppercase">Wersja MVP</span>
+          <span className="text-sm font-semibold tracking-widest uppercase">System Inżynierski</span>
         </div>
         
-        <h1 className="text-5xl md:text-8xl font-extrabold text-white tracking-tight mb-6 leading-tight">
-          Twój gamingowy <br/>
+        <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight mb-6 leading-[1.1]">
+          Wykorzystaj algorytm <br/>
           <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-500 bg-clip-text text-transparent drop-shadow-sm">
-            GameSense
+            Jaccarda
           </span>
         </h1>
         
-        <p className="text-lg md:text-2xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Analizuj swoją bibliotekę Steam, sprawdzaj kompatybilność ze znajomymi i odkrywaj gry, w które w końcu zagracie razem.
+        <p className="text-lg md:text-2xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+          GameSense to autorska implementacja matematycznego ważenia profilu gracza, stworzona do analizy i krzyżowania bibliotek platformy Steam.
         </p>
 
-        {/* Przyciski */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link 
-            to="/search" 
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg shadow-emerald-900/40 w-full sm:w-auto justify-center group"
-          >
-            <Search size={24} className="group-hover:rotate-12 transition-transform duration-300" />
-            Wyszukaj Grę
-          </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <Link 
             to="/overlap" 
-            className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 border border-slate-700 backdrop-blur-sm shadow-lg w-full sm:w-auto justify-center group"
+            className="flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-[0_0_30px_rgba(16,185,129,0.3)] w-full sm:w-auto group"
           >
             <Users size={24} className="group-hover:scale-110 transition-transform duration-300" />
-            Oblicz Dopasowanie
+            Skaner Kompatybilności
+          </Link>
+          <Link 
+            to="/search" 
+            className="flex items-center justify-center gap-3 bg-slate-800/80 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 border border-slate-700 backdrop-blur-sm shadow-xl w-full sm:w-auto group"
+          >
+            <Search size={24} className="group-hover:rotate-12 transition-transform duration-300 text-emerald-400" />
+            Baza Gier (IGDB)
           </Link>
         </div>
       </div>

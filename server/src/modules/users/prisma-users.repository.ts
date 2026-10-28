@@ -37,7 +37,8 @@ function mapUser(user: UserWithGames): UserRecord {
       name: userGame.game.name,
       genres: userGame.game.genres.map(({ genre }) => genre.name),
       playtimeMinutes: userGame.playtimeMinutes,
-      lastPlayedAt: userGame.lastPlayedAt?.toISOString() ?? null
+      lastPlayedAt: userGame.lastPlayedAt?.toISOString() ?? null,
+      coverUrl: userGame.game.coverUrl
     }))
   };
 }
@@ -48,8 +49,14 @@ export class PrismaUsersRepository
   constructor(private readonly prisma: PrismaClient) {}
 
   async findById(userId: string): Promise<UserRecord | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    // Zmieniamy z findUnique na findFirst, aby obsłużyć również logikę Steam ID
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: userId }, // Szukaj po wewnętrznym UUID
+          { steamId: userId } // LUB szukaj po Steam ID
+        ]
+      },
       include: {
         games: {
           include: {
@@ -67,7 +74,11 @@ export class PrismaUsersRepository
       }
     });
 
-    return user ? mapUser(user) : null;
+    if (!user) {
+      return null;
+    }
+
+    return mapUser(user);
   }
 
   async synchronize(
@@ -108,7 +119,7 @@ export class PrismaUsersRepository
                 steamAppId: steamGame.steamAppId,
                 igdbId: gameMetadata?.igdbId,
                 name: gameMetadata?.name ?? steamGame.name,
-                coverUrl: gameMetadata?.coverUrl,
+                coverUrl: steamGame.coverUrl ?? gameMetadata?.coverUrl,
                 releaseYear: gameMetadata?.releaseYear
               }
             })
@@ -117,7 +128,7 @@ export class PrismaUsersRepository
                 steamAppId: steamGame.steamAppId,
                 igdbId: gameMetadata?.igdbId,
                 name: gameMetadata?.name ?? steamGame.name,
-                coverUrl: gameMetadata?.coverUrl ?? null,
+                coverUrl: steamGame.coverUrl ?? gameMetadata?.coverUrl ?? null,
                 releaseYear: gameMetadata?.releaseYear ?? null
               }
             });

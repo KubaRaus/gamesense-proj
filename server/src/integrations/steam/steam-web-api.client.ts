@@ -41,7 +41,7 @@ export class SteamWebApiClient implements SteamLibraryGateway {
     };
   }
 
-  async getOwnedGames(steamId: string): Promise<SteamOwnedGame[]> {
+ async getOwnedGames(steamId: string): Promise<SteamOwnedGame[]> {
     const params = new URLSearchParams({
       key: this.apiKey,
       steamid: steamId,
@@ -59,15 +59,14 @@ export class SteamWebApiClient implements SteamLibraryGateway {
     }
 
     return (library.games ?? [])
-      .filter(
-        (game): game is Required<Pick<typeof game, "appid" | "name">> & typeof game =>
-          typeof game.appid === "number" && typeof game.name === "string"
-      )
+      .filter((game): game is typeof game & { appid: number } => typeof game.appid === "number")
       .map((game) => ({
         steamAppId: game.appid,
-        name: game.name,
+        name: game.name && typeof game.name === "string" ? game.name : `Steam Game ${game.appid}`,
         playtimeMinutes: Math.max(0, game.playtime_forever ?? 0),
-        lastPlayedAt: unixTimestampToDate(game.rtime_last_played)
+        lastPlayedAt: unixTimestampToDate(game.rtime_last_played),
+        // Dodajemy bezpośredni link do okładki Steam CDN
+        coverUrl: `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`
       }));
   }
 

@@ -29,12 +29,15 @@ export interface UserProfileResponse {
     name: string;
     playtimeMinutes: number;
     lastPlayedAt: string | null;
+    coverUrl?: string | null;
   }>;
 }
 
 export interface CompatibilityResponse {
   userA: string;
   userB: string;
+  userAInfo: { username: string; avatarUrl: string | null };
+  userBInfo: { username: string; avatarUrl: string | null };
   overlapIndex: number;
   overlapPercentage: number;
   presenceOverlapIndex: number;
@@ -47,6 +50,7 @@ export interface CompatibilityResponse {
     name: string;
     userAPlaytimeMinutes: number;
     userBPlaytimeMinutes: number;
+    coverUrl?: string | null;
   }>;
   genreBreakdown: Array<{
     genre: string;
